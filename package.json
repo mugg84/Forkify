@@ -8,6 +8,10 @@
     "build": "webpack --mode production",
     "start": "webpack-dev-server --mode development --open"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mugg84/Forkify.git"
+  },
   "author": "Turi",
   "license": "ISC",
   "devDependencies": {
