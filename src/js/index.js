@@ -13,17 +13,8 @@ const res = await axios(`https://forkify-api.herokuapp.com/api/get?rId=${this.id
 
 //https://forkify-api.herokuapp.com/api/search
 
-import axios from 'axios';
+import Search from './modules/Search'
 
-async function getResults(query) {
-        const res = await axios(`https://forkify-api.herokuapp.com/api/search?q=${query}`);
-
-        try {
-                const recipes = res.data.recipe;
-                console.log(res);
-        } catch (error) {
-                console.log(error);
-        }
-}
-
-getResults('pasta');
+const search = new Search('pizza');
+console.log(search);
+search.getResults()
