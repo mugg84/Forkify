@@ -19,7 +19,6 @@
 
 */
 
+import num from "./test";
 
-import num from './test';
-
-console.log(num)
+console.log(num);
