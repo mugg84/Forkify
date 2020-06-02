@@ -23,6 +23,7 @@ export default class Recipe {
 
   calcTime() {
     //Assuming we need 15 mins for each 3 ingredients
+
     const numIng = this.ingredients.length;
     const periods = Math.ceil(numIng / 3);
     this.time = periods * 15;
@@ -30,5 +31,92 @@ export default class Recipe {
 
   calcServings() {
     this.servings = 4;
+  }
+
+  parseIngredients() {
+    const unitsLong = [
+      "tablespoon",
+      "tablespoons",
+      "ounce",
+      "ounces",
+      "ozs",
+      "teaspoon",
+      "teaspoons",
+      "cups",
+      "pounds",
+    ];
+    const unitsShort = [
+      "tbsp",
+      "tbsp",
+      "oz",
+      "oz",
+      "oz",
+      "tsp",
+      "tsp",
+      "cup",
+      "pound",
+    ];
+    const units = [...unitsShort, "kg", "g"];
+
+    const newIngredients = this.ingredients.map((el) => {
+      //uniforme units
+
+      let ingredient = el.toLowerCase();
+      unitsLong.forEach(
+        (unit, i) => (ingredient = ingredient.replace(unit, unitsShort[i]))
+      );
+
+      //remove parentesis
+
+      ingredient = ingredient.replace(/ *\([^)]*\) */g, " ");
+
+      //parse ingredients into count, unit, ingredient
+
+      const arrIng = ingredient.split(" ");
+      const unitIndex = arrIng.findIndex((el2) => units.includes(el2));
+
+      let objIng;
+
+      if (unitIndex > -1) {
+        //there is a unit
+        // 4 1/2 cups arrCont is [4, 1/2]
+        // 4 cups arrCount is [4]
+
+        const arrCount = arrIng.slice(0, unitIndex);
+
+        let count;
+
+        if (arrCount.length === 1) {
+          count = eval(arrIng[0].replace("-", "+"));
+        } else {
+          count = eval(arrIng.slice(0, unitIndex).join("+"));
+        }
+
+        objIng = {
+          count,
+          unit: arrIng[unitIndex],
+          ingredient: arrIng.slice(unitIndex + 1).join(" "),
+        };
+      } else if (parseInt(arrIng[0], 10)) {
+        // no unit but the first element is a number
+
+        objIng = {
+          count: parseInt(arrIng[0], 10),
+          unit: "",
+          ingredient: arrIng.slice(1).join(" "),
+        };
+      } else if (unitIndex === -1) {
+        //there is no unit and no number in first position
+
+        objIng = {
+          count: 1,
+          unit: "",
+          ingredient,
+        };
+      }
+
+      return objIng;
+    });
+    this.ingredients = newIngredients;
   }
 }
