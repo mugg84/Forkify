@@ -1,7 +1,9 @@
 import Search from "./modules/Search";
 import Recipe from "./modules/Recipes";
+import List from "./modules/List";
 import * as searchView from "./views/searchViews";
-import * as recipeView from "./views/recipesView";
+import * as recipesView from "./views/recipesView";
+import * as listViews from "./views/listViews";
 import { elements, renderLoader, clearLoader } from "./views/base";
 
 /* Global state of the app
@@ -11,6 +13,7 @@ import { elements, renderLoader, clearLoader } from "./views/base";
 */
 
 const state = {};
+window.state = state;
 
 /* SEARCH CONTROLLER */
 
@@ -63,7 +66,7 @@ const controlRecipe = async () => {
 
   if (id) {
     //prepare UI for changes
-    recipeView.clearRecipe();
+    recipesView.clearRecipe();
     renderLoader(elements.recipe);
 
     //highlight selected search item
@@ -86,7 +89,7 @@ const controlRecipe = async () => {
       // render recipe
       clearLoader();
 
-      recipeView.renderRecipe(state.recipe);
+      recipesView.renderRecipe(state.recipe);
     } catch (e) {
       alert("Error processing recipe");
     }
@@ -100,17 +103,51 @@ const controlRecipe = async () => {
 );
 (".btn-increase, .btn-decrease *");
 
+/*LIST CONTROLLER*/
+
+const controlList = () => {
+  //create new list if not there yet
+  if (!state.list) state.list = new List();
+
+  //Add each ingredient to the list and UI
+  state.recipe.ingredients.forEach((el) => {
+    const item = state.list.addItem(el.count, el.unit, el.ingredient);
+    listViews.renderItem(item);
+  });
+};
+
+// Handle delete and update list item events
+elements.shopping.addEventListener("click", (e) => {
+  const id = e.target.closest(".shopping__item").dataset.itemid;
+
+  // handle delete
+  if (e.target.matches(".shopping__delete, .shopping__delete *")) {
+    // delete ffrom state
+    state.list.deleteItem(id);
+
+    // delete from UI
+    listViews.deleteItem(id);
+
+    // handle count update
+  } else if (e.target.matches(".shopping__count-value")) {
+    const val = parseFloat(e.target.value, 10);
+    state.list.updateCount(id, val);
+  }
+});
+
 //handling recipe button cicks
 elements.recipe.addEventListener("click", (e) => {
   if (event.target.matches(".btn-decrease, .btn-decrease *")) {
     //decrasse button is clicked
     if (state.recipe.servings > 1) {
       state.recipe.udpateServings("dec");
-      recipeView.updateServingsIngredients(state.recipe);
+      recipesView.updateServingsIngredients(state.recipe);
     }
   } else if (event.target.matches(".btn-increase, .btn-increase *")) {
     //incrasse button is clicked
     state.recipe.udpateServings("inc");
-    recipeView.updateServingsIngredients(state.recipe);
+    recipesView.updateServingsIngredients(state.recipe);
+  } else if (e.target.matches(".recipe__btn--add, .recipe__btn--add *")) {
+    controlList();
   }
 });
